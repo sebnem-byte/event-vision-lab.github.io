@@ -1,0 +1,57 @@
+---
+title: How Event Cameras Work
+description: Learn the basic operating principles of event cameras through an interactive simulation.
+---
+import EventSimulator from '../../../components/EventSimulator';
+
+A conventional camera integrates light and outputs frames at a fixed rate. An **event camera** instead reports changes in brightness independently at each pixel. An ideal event consists of its pixel coordinates, a timestamp, and the sign of the brightness change:
+
+$$e_k=(x_k,y_k,t_k,p_k), \qquad p_k\in\{-1,+1\}.$$
+
+The resulting stream is **asynchronous**: no event is required when a pixel's brightness remains sufficiently stable.
+
+## 1. Brightness changes, not brightness values
+
+Let $I(x,y,t)$ denote brightness at pixel $(x,y)$ and time $t$. Event-camera models typically operate on *logarithmic brightness*:
+
+$$L(x,y,t)=\log I(x,y,t).$$
+
+For a fixed pixel, when the difference in log brightness since a reference value reaches a contrast threshold $C$, that pixel generates a positive (ON) or negative (OFF) event.
+
+## 2. Interact with a simulated event pixel
+
+Change the **contrast threshold** and the signal's amplitude and frequency. Observe what happens to the event rate and ON/OFF polarities.
+
+<EventSimulator client:load />
+
+The blue curve shows a synthetic log-brightness trajectory over one second. The lower markers are asynchronous events. Positive changes produce **ON** events (blue); negative changes produce **OFF** events (orange). This is an idealized model, not recorded sensor output.
+
+### Try these questions
+
+- At a fixed brightness trajectory, what happens when $C$ increases?
+- If the brightness stops changing, how many events should an ideal pixel emit?
+- How does faster brightness variation change the distribution of event timestamps?
+- Why can an event camera produce many events for a fast edge and almost none from a static, textured scene?
+
+## 3. Event trigger equation
+
+For a single pixel, an event of polarity $p_k$ is generated when the change in log brightness reaches a polarity-dependent threshold:
+
+$$L(x,y,t_k)-L_{\mathrm{ref}}(x,y)\approx p_k C,\qquad p_k\in\{+1,-1\}.$$
+
+In the idealized simulator, the reference is updated in steps of $p_k C$ after each event, so a sufficiently large change can result in multiple events. Practical cameras have threshold variability, noise, latency, bandwidth and refractory-period effects.
+
+## 4. What is special about event cameras?
+
+- **Asynchronous measurements:** individual pixels report independently.
+- **Low latency:** events can be timestamped at fine temporal resolution.
+- **High dynamic range:** event-camera pixels can work in challenging lighting conditions, subject to the particular sensor.
+- **Sparse output:** event generation depends on scene and camera motion, texture and illumination changes.
+
+These are *sensor characteristics*, not guarantees of superior performance for every scene.
+
+## Reading
+
+**Primary reference:** Gallego et al., [*Event-Based Vision: A Survey*](https://doi.org/10.1109/TPAMI.2020.3008413), IEEE TPAMI, 2022. Start with the section on event-based cameras and the event generation model.
+
+**Next:** [Mathematical Model](../mathematical-model/)

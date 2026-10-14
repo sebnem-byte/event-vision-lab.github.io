@@ -1,0 +1,63 @@
+---
+import EventSimulator from '../components/EventSimulator';
+import '../styles/home.css';
+const base = import.meta.env.BASE_URL.replace(/\/$/,'');
+const github = 'https://github.com/sebnem-byte/event-vision-lab.github.io';
+const modules = [
+  {n:'01',title:'Fundamentals',icon:'◉',tag:'START HERE',desc:'The physics and mathematics behind asynchronous vision.',href:'fundamentals/how-event-cameras-work/',topics:['How event cameras work','Logarithmic intensity','Contrast threshold','Sensor characteristics']},
+  {n:'02',title:'Data Processing',icon:'▦',tag:'HANDS-ON',desc:'Go from raw event streams to useful spatiotemporal representations.',href:'data-processing/event-data/',topics:['Event data structure','Event accumulation','Voxel grids','Time surfaces']},
+  {n:'03',title:'Perception',icon:'◎',tag:'NEXT',desc:'Understand event-based features, motion and depth.',href:'perception/overview/',topics:['Feature detection','Optical flow','Depth estimation','Tracking']},
+  {n:'04',title:'VIO & SLAM',icon:'⌁',tag:'ADVANCED',desc:'Connect asynchronous sensing to motion estimation and mapping.',href:'vio-slam/roadmap/',topics:['Visual odometry','Event–IMU fusion','Visual-inertial odometry','SLAM']},
+];
+const menus = [
+  {label:'Fundamentals',links:[['How event cameras work','fundamentals/how-event-cameras-work/'],['Mathematical model','fundamentals/mathematical-model/']]},
+  {label:'Data processing',links:[['Understanding event data','data-processing/event-data/'],['Event representations','data-processing/event-representations/']]},
+  {label:'Perception',links:[['Overview','perception/overview/']]},
+  {label:'VIO & SLAM',links:[['Roadmap','vio-slam/roadmap/']]},
+];
+---
+<html lang="en">
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="description" content="Learn event-based vision through interactive tutorials, math and Python labs."/><meta name="theme-color" content="#08101e"/><title>Event Vision Lab — Learn to See Through Events</title></head>
+<body>
+<header class="nav-wrap"><nav class="nav container" aria-label="Main navigation">
+  <a class="brand" href={`${base}/`}><span class="brand-mark">◉</span><span>Event<span class="brand-accent">Vision</span>Lab</span></a>
+  <button id="mobile-toggle" class="mobile-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="nav-links">☰</button>
+  <div class="nav-links" id="nav-links">
+    <div class="drop-root"><button class="nav-link tutorials-trigger" id="tutorials-trigger" aria-haspopup="true" aria-expanded="false">Tutorials <span>⌄</span></button>
+      <div class="mega-menu" id="mega-menu"><div class="mega-left"><div class="mega-caption">LEARNING PATH</div>
+      {menus.map((m,i)=><button class={`mega-category ${i===0?'selected':''}`} data-index={i}>{String(i+1).padStart(2,'0')} · {m.label} <span>→</span></button>)}</div>
+      <div class="mega-right">{menus.map((m,i)=><div class={`mega-panel ${i===0?'visible':''}`} data-panel={i}><div class="mega-caption">{m.label.toUpperCase()}</div>{m.links.map(([label,href])=><a href={`${base}/${href}`}>{label} <span>↗</span></a>)}</div>)}</div></div>
+    </div>
+    <a class="nav-link" href={`${base}/data-processing/event-data/`}>Datasets</a>
+    <a class="nav-link" href="#interactive-demo">Live demo</a>
+    <a class="nav-link" href="#about">About</a>
+    <a class="nav-github" href={github} rel="noopener noreferrer" target="_blank" aria-label="Open GitHub repository">GitHub ↗</a>
+  </div>
+</nav></header>
+<main>
+<section class="hero container"><div class="hero-copy"><div class="eyebrow"><span class="live-dot"></span> OPEN-SOURCE • HANDS-ON • RESEARCH-LED</div>
+<h1>Learn to See<br/><span>Through Events.</span></h1>
+<p class="hero-description">From the physics of event cameras to asynchronous perception, visual odometry and SLAM. Learn the theory, explore the mathematics, and build it yourself.</p>
+<div class="hero-actions"><a class="btn btn-primary" href={`${base}/fundamentals/how-event-cameras-work/`}>Start learning <span>↗</span></a><a class="btn btn-outline" href={github}>Explore on GitHub <span>↗</span></a></div>
+<div class="hero-meta"><span>◉ Interactive explanations</span><span>⌘ Python exercises</span><span>◇ Open datasets</span></div></div>
+<div class="hero-art" aria-hidden="true"><div class="orb-ring ring-one"></div><div class="orb-ring ring-two"></div><div class="orb-core">◉</div><div class="event-dot a"></div><div class="event-dot b"></div><div class="event-dot c"></div><div class="event-dot d"></div><div class="art-axis axis-x">t →</div><div class="art-axis axis-y">Δlog I</div><div class="art-label">ASYNCHRONOUS VISION<br/><strong>One event at a time.</strong></div></div></section>
+<section class="stats"><div class="container stat-inner"><span>01 <small>SENSOR PHYSICS</small></span><span>02 <small>DATA & REPRESENTATIONS</small></span><span>03 <small>PERCEPTION</small></span><span>04 <small>VIO & SLAM</small></span></div></section>
+<section class="section container" id="tutorials"><div class="section-heading"><div><div class="section-kicker">THE LEARNING PATH</div><h2>Build knowledge, step by step.</h2><p>Follow a structured curriculum, from first principles to robot perception.</p></div><a href={`${base}/fundamentals/how-event-cameras-work/`} class="text-link">Browse tutorials ↗</a></div>
+<div class="module-grid">{modules.map(m=><a class="module-card" href={`${base}/${m.href}`}><div class="module-top"><span class="module-icon">{m.icon}</span><span class="module-num">MODULE {m.n}</span></div><h3>{m.title}</h3><p>{m.desc}</p><div class="module-topics">{m.topics.map(t=><span>{t}</span>)}</div><div class="module-bottom">Explore module <span>↗</span></div></a>)}</div></section>
+<section class="demo-section" id="interactive-demo"><div class="container"><div class="section-kicker">INTERACTIVE LEARNING</div><div class="demo-heading"><div><h2>See how events are generated.</h2><p>Move the sliders to understand how changes in logarithmic brightness generate asynchronous ON and OFF events at a single pixel.</p></div><a href={`${base}/fundamentals/how-event-cameras-work/`} class="text-link">Learn the mathematical model ↗</a></div><EventSimulator client:load /></div></section>
+<section class="section container philosophy" id="about"><div><div class="section-kicker">HOW WE TEACH</div><h2>Understand it. Code it. See it.</h2><p>Each lesson connects mathematical foundations with interactive explanations and hands-on implementation. Examples start from real event datasets such as MVSEC.</p></div><div class="principles"><div><b>01 / THEORY</b><span>Clear explanations and trustworthy research references.</span></div><div><b>02 / EXPLORE</b><span>Interactive demos to make the underlying physics intuitive.</span></div><div><b>03 / BUILD</b><span>Reproducible Python exercises and practical assignments.</span></div></div></section>
+</main><footer><div class="container footer-inner"><span><strong>◉ Event Vision Lab</strong><small>From event generation to SLAM.</small></span><span>Built for open learning · <a href={github}>GitHub ↗</a></span></div></footer>
+<script>
+const toggle = document.querySelector<HTMLButtonElement>('#mobile-toggle');
+const links = document.querySelector<HTMLElement>('#nav-links');
+toggle?.addEventListener('click',()=>{const opened=links?.classList.toggle('open')??false;toggle.setAttribute('aria-expanded',String(opened));toggle.textContent=opened?'✕':'☰';});
+const root=document.querySelector<HTMLElement>('.drop-root');const trigger=document.querySelector<HTMLButtonElement>('#tutorials-trigger');
+function setOpen(open:boolean){root?.classList.toggle('open',open);trigger?.setAttribute('aria-expanded',String(open));}
+trigger?.addEventListener('click',()=>setOpen(!root?.classList.contains('open')));
+root?.addEventListener('mouseenter',()=>{if(window.matchMedia('(hover:hover)').matches)setOpen(true);});
+root?.addEventListener('mouseleave',()=>setOpen(false));
+document.addEventListener('click',(e)=>{if(root&&!root.contains(e.target as Node))setOpen(false);});
+document.addEventListener('keydown',(e)=>{if(e.key==='Escape')setOpen(false);});
+document.querySelectorAll<HTMLButtonElement>('.mega-category').forEach(btn=>{function activate(){document.querySelectorAll('.mega-category').forEach(b=>b.classList.toggle('selected',b===btn));document.querySelectorAll('.mega-panel').forEach(p=>p.classList.toggle('visible',p.getAttribute('data-panel')===btn.dataset.index));}btn.addEventListener('mouseenter',activate);btn.addEventListener('focus',activate);btn.addEventListener('click',activate);});
+</script>
+</body></html>

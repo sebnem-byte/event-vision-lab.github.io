@@ -1,0 +1,38 @@
+---
+title: Event Representations
+description: Create event frames, voxel grids and time surfaces from the same event interval.
+---
+
+Use **MVSEC indoor_flying1**. Begin with one **20 ms** interval and use it consistently across all three visualizations.
+
+## 1. Event accumulation
+
+For a temporal window $[t_0,t_1)$, accumulate the signed event polarities at each pixel:
+
+$$A(x,y)=\sum_{k:t_0\le t_k<t_1} p_k\,\mathbf{1}[x_k=x,y_k=y].$$
+
+Compare **5 ms**, **20 ms** and **50 ms** windows.
+
+## 2. Voxel grid
+
+Divide the time window into **five bins**. Aggregate events based on spatial coordinates and normalized time. Start with hard binning for clarity; optionally implement temporal interpolation afterward.
+
+Display all five bins side by side, using a consistent color scale. Explain what temporal ordering is preserved relative to a 2D accumulation image.
+
+## 3. Time surface
+
+For every pixel store the timestamp of its latest observed event $T_{\mathrm{last}}(x,y)$ and evaluate at $t_1$:
+
+$$S(x,y,t_1)=\exp\left(-\frac{t_1-T_{\mathrm{last}}(x,y)}{\tau}\right).$$
+
+Define pixels with no previously observed events to have surface value zero. Start with $\tau=20\,\mathrm{ms}$. Consider computing independent ON and OFF time surfaces.
+
+## Submission checklist
+
+- Jupyter notebook or Python scripts with clearly named functions.
+- Comparisons across representations for the **same timestamp interval**.
+- At least one figure with accumulation, all five voxel bins and time surfaces.
+- A short report explaining representation strengths and limitations.
+- Cite dataset and academic references.
+
+**Reading:** [Gallego et al. (2022)](https://doi.org/10.1109/TPAMI.2020.3008413).

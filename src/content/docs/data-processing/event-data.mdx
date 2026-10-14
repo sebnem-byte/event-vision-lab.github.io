@@ -1,0 +1,47 @@
+---
+title: Understanding Event Data
+description: Explore event tuples, timestamps and polarity in MVSEC indoor_flying1.
+---
+
+## Raw events
+
+Each event carries four principal fields: $e_k=(x_k,y_k,t_k,p_k)$.
+
+- $x_k,y_k$: pixel coordinates.
+- $t_k$: timestamp.
+- $p_k$: polarity of the local brightness change. The dataset's stored encoding must be checked before converting to $\{-1,+1\}$.
+
+## Dataset: MVSEC indoor_flying1
+
+Use the [MVSEC dataset](https://daniilidis-group.github.io/mvsec/) and select the **indoor_flying1** sequence. Inspect the [official MVSEC data format](https://daniilidis-group.github.io/mvsec/data_format/) before coding. DAVIS event arrays are commonly stored under `davis/left/events` and `davis/right/events` in the HDF5 recordings; inspect the actual downloaded file rather than assuming its layout.
+
+### Python starter
+
+```python
+import h5py
+import numpy as np
+
+path = 'indoor_flying1_data.hdf5'  # update to your downloaded filename
+with h5py.File(path, 'r') as f:
+    def describe(name, obj):
+        if isinstance(obj, h5py.Dataset):
+            print(name, obj.shape, obj.dtype)
+    f.visititems(describe)
+    events = f['davis/left/events'][:]
+
+print('shape:', events.shape)
+print('first 20 events:', events[:20])
+print('timestamp range:', events[:, 2].min(), events[:, 2].max())
+print('polarity values:', np.unique(events[:, 3], return_counts=True))
+```
+
+Before any time-window processing, **verify the timestamps' units and any offset** documented for the sequence.
+
+## Assignment 01: Understand the stream
+
+1. Print 20 events and explain all four fields.
+2. Report event count, timestamp range, event polarities and sensor resolution.
+3. Plot positive and negative event counts per **10 ms** interval.
+4. Discuss why event rate varies with camera motion and scene texture.
+
+**Next:** [Event Representations](../event-representations/).

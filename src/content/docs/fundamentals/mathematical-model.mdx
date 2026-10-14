@@ -1,0 +1,30 @@
+---
+title: Mathematical Model
+description: Understand the ideal event-generation rule and its assumptions.
+---
+
+## Continuous-time signal
+
+At pixel $\mathbf{x}=(x,y)$, let $I(\mathbf{x},t)>0$ be brightness. Define log brightness as
+
+$$L(\mathbf{x},t)=\log I(\mathbf{x},t).$$
+
+Let $L_{\mathrm{ref}}$ be the reference log intensity after previous events. An ideal event occurs when the accumulated deviation crosses a threshold:
+
+$$L(\mathbf{x},t_k)-L_{\mathrm{ref}}(\mathbf{x})=p_k C,\quad p_k\in\{-1,+1\}.$$
+
+After the event, the reference level can be advanced by $p_k C$ in the ideal model. Actual sensor implementations may behave differently, especially under noise and rapid illumination changes.
+
+## Why logarithmic brightness?
+
+For two brightness levels $I_1$ and $I_2$,
+
+$$\Delta L=\log I_2-\log I_1=\log\left(\frac{I_2}{I_1}\right).$$
+
+So the ideal contrast rule is sensitive to **relative brightness change**, rather than a fixed absolute increment.
+
+## Mini exercise
+
+A pixel's intensity doubles. Compute $\Delta L$. For $C=0.2$, estimate the number of ideal positive threshold crossings if the reference starts at the initial brightness and no countervailing changes occur.
+
+**Reference:** [Gallego et al., Event-Based Vision: A Survey](https://doi.org/10.1109/TPAMI.2020.3008413).
