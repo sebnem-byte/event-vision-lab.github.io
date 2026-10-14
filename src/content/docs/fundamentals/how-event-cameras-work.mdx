@@ -2,7 +2,7 @@
 title: How Event Cameras Work
 description: Learn the basic operating principles of event cameras through an interactive simulation.
 ---
-import EventSimulator from '../../../components/EventSimulator';
+import InteractiveEventExplainer from '../../../components/InteractiveEventExplainer';
 
 A conventional camera integrates light and outputs frames at a fixed rate. An **event camera** instead reports changes in brightness independently at each pixel. An ideal event consists of its pixel coordinates, a timestamp, and the sign of the brightness change:
 
@@ -20,11 +20,11 @@ For a fixed pixel, when the difference in log brightness since a reference value
 
 ## 2. Interact with a simulated event pixel
 
-Change the **contrast threshold** and the signal's amplitude and frequency. Observe what happens to the event rate and ON/OFF polarities.
+Play a moving bright object, click a pixel in the conventional grayscale frame, and inspect its logarithmic intensity history. Change the contrast threshold and time window, then compare the **event image**, **5-bin voxel representation**, and **time surface** computed from the same events.
 
-<EventSimulator client:load />
+<InteractiveEventExplainer client:load />
 
-The blue curve shows a synthetic log-brightness trajectory over one second. The lower markers are asynchronous events. Positive changes produce **ON** events (blue); negative changes produce **OFF** events (orange). This is an idealized model, not recorded sensor output.
+The graph tracks the selected pixel over the full simulation. Blue markers correspond to **ON** events; orange markers correspond to **OFF** events. Move the time slider to compare the conventional frame with the event stream accumulated over the selected window. This example is simulated, not a recorded sensor output.
 
 ### Try these questions
 
