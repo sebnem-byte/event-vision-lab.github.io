@@ -22,7 +22,10 @@ export default defineConfig({
     customCss: ['./src/styles/docs.css'],
     sidebar: [
       { label: 'Fundamentals', items: [
+        { label: 'What Is an Event Camera?', slug: 'fundamentals/what-is-an-event-camera' },
+        { label: 'Inside an Event Camera Pixel', slug: 'fundamentals/analog-pixel-model' },
         { label: 'How Event Cameras Work', slug: 'fundamentals/how-event-cameras-work' },
+        { label: 'Types of Event Cameras', slug: 'fundamentals/types-of-event-cameras' },
         { label: 'Mathematical Model', slug: 'fundamentals/mathematical-model' },
       ]},
       { label: 'Data Processing', items: [
