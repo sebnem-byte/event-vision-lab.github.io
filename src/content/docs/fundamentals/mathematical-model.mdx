@@ -1,30 +1,205 @@
 ---
 title: Mathematical Model
-description: Understand the ideal event-generation rule and its assumptions.
+description: Detailed mathematical foundations of event generation, with figure-based explanations and links to pixel electronics, neuromorphic analogy, and common representations.
 ---
 
-## Continuous-time signal
+# Mathematical Model
 
-At pixel $\mathbf{x}=(x,y)$, let $I(\mathbf{x},t)>0$ be brightness. Define log brightness as
+Event cameras do not output full image frames at a fixed frame rate. Instead, each pixel continuously monitors **changes in logarithmic brightness** and emits an asynchronous **ON** or **OFF** event when that change exceeds a threshold.
 
-$$L(\mathbf{x},t)=\log I(\mathbf{x},t).$$
+This page explains the ideal mathematical model behind event generation and connects it to the conceptual pipeline shown below.
 
-Let $L_{\mathrm{ref}}$ be the reference log intensity after previous events. An ideal event occurs when the accumulated deviation crosses a threshold:
+## Figure overview
 
-$$L(\mathbf{x},t_k)-L_{\mathrm{ref}}(\mathbf{x})=p_k C,\quad p_k\in\{-1,+1\}.$$
+![From Light to Asynchronous Events](/figures/from-light-to-asynchronous-events.png)
 
-After the event, the reference level can be advanced by $p_k C$ in the ideal model. Actual sensor implementations may behave differently, especially under noise and rapid illumination changes.
+### What this figure shows
 
-## Why logarithmic brightness?
+The figure above summarizes the entire process from incoming light to event-based output:
 
-For two brightness levels $I_1$ and $I_2$,
+1. **Conventional image** – a moving object changes the light reaching a pixel over time.
+2. **Simplified pixel electronics** – a shared photoreceptor and event-detection path measure brightness change.
+3. **Mathematical model** – the sensor compares current log-brightness to a stored reference.
+4. **Neuromorphic analogy** – the behavior resembles change-sensitive biological pathways.
+5. **Event output and representation** – the output can be stored as tuples and converted into event images or voxel grids.
 
-$$\Delta L=\log I_2-\log I_1=\log\left(\frac{I_2}{I_1}\right).$$
+---
 
-So the ideal contrast rule is sensitive to **relative brightness change**, rather than a fixed absolute increment.
+## Event tuple
+
+A single event is commonly written as
+
+$$
+e_k = (x_k, y_k, t_k, p_k),
+$$
+
+where:
+
+- $x_k, y_k$ are the pixel coordinates,
+- $t_k$ is the timestamp,
+- $p_k \in \{+1, -1\}$ is the polarity,
+  - $p_k = +1$ for an **ON** event,
+  - $p_k = -1$ for an **OFF** event.
+
+This representation is sparse and asynchronous: if nothing changes at a pixel, no event is generated.
+
+---
+
+## Logarithmic brightness
+
+Let the intensity at pixel $\mathbf{x}=(x,y)$ and time $t$ be $I(\mathbf{x}, t) > 0$. Event cameras are usually modeled in the **log-intensity domain**:
+
+$$
+L(\mathbf{x}, t) = \log I(\mathbf{x}, t).
+$$
+
+This is important because the sensor responds approximately to **relative brightness change**, not just absolute intensity differences.
+
+If brightness changes from $I_1$ to $I_2$, then
+
+$$
+\Delta L = \log I_2 - \log I_1 = \log\left(rac{I_2}{I_1}ight).
+$$
+
+So a multiplicative change in brightness becomes an additive change in $L$.
+
+---
+
+## Reference-based change detection
+
+Each pixel stores a reference log-brightness level, denoted by $L_{\mathrm{ref}}(\mathbf{x})$, which is updated after the previous event.
+
+The accumulated change is then
+
+$$
+\Delta L(\mathbf{x}, t) = L(\mathbf{x}, t) - L_{\mathrm{ref}}(\mathbf{x}).
+$$
+
+This is the signal compared to the positive and negative thresholds.
+
+---
+
+## Event trigger equation
+
+In the idealized symmetric model, an event is generated when the accumulated change reaches the contrast threshold $C$:
+
+$$
+L(\mathbf{x}, t_k) - L_{\mathrm{ref}}(\mathbf{x}) = p_k C,
+$$
+
+with $p_k \in \{+1, -1\}$.
+
+Equivalent threshold form:
+
+- **ON event** if
+  $$
+  \Delta L(\mathbf{x}, t_k) \ge C^+,
+  $$
+- **OFF event** if
+  $$
+  \Delta L(\mathbf{x}, t_k) \le -C^-.
+  $$
+
+So:
+
+- increasing brightness produces an **ON** event,
+- decreasing brightness produces an **OFF** event.
+
+---
+
+## Reference update after an event
+
+After an event is generated, the stored reference is updated. In the ideal model,
+
+$$
+L_{\mathrm{ref,new}} = L_{\mathrm{ref,old}} + p_k C.
+$$
+
+This update prevents the same crossing from triggering forever and allows the pixel to keep detecting future changes.
+
+---
+
+## How this connects to the figure
+
+In the **mathematical model** panel of the figure:
+
+- $L(t) = \log I(t)$ is the continuous-time log-intensity at one pixel,
+- $\Delta L(t) = L(t) - L_{\mathrm{ref}}$ is the difference from the stored reference,
+- an **ON event** is generated when $\Delta L$ crosses the positive threshold,
+- an **OFF event** is generated when $\Delta L$ crosses the negative threshold,
+- after each event, the reference is conceptually reset or advanced.
+
+This is the standard ideal model used in the event-based vision literature.
+
+---
+
+## Why this matters
+
+This model explains several well-known properties of event cameras:
+
+- **High temporal resolution** – changes are timestamped as they occur.
+- **Low latency** – pixels do not wait for a global frame clock.
+- **High dynamic range** – log sensing helps across broad lighting conditions.
+- **Sparse output** – only changes are transmitted.
+
+These properties are especially useful in high-speed robotics, agile flight, and visual-inertial estimation.
+
+---
+
+## Event representations
+
+Once events are generated, they are often converted into other representations:
+
+- **Event image** – projects accumulated events into the image plane $(x,y)$,
+- **Voxel grid** – bins events in space and time $(x,y,t)$,
+- **Time surface** – stores the time of the most recent event at each pixel.
+
+In the figure above, the final panel explicitly shows both an event image and a 5-bin voxel grid.
+
+---
 
 ## Mini exercise
 
-A pixel's intensity doubles. Compute $\Delta L$. For $C=0.2$, estimate the number of ideal positive threshold crossings if the reference starts at the initial brightness and no countervailing changes occur.
+Assume the intensity at a pixel doubles:
 
-**Reference:** [Gallego et al., Event-Based Vision: A Survey](https://doi.org/10.1109/TPAMI.2020.3008413).
+$$
+I_2 = 2 I_1.
+$$
+
+Then
+
+$$
+\Delta L = \log\left(rac{I_2}{I_1}ight) = \log 2.
+$$
+
+If the contrast threshold is $C = 0.2$, estimate the number of ideal positive threshold crossings by computing:
+
+$$
+rac{\log 2}{0.2}.
+$$
+
+Interpret this value as the approximate number of ON events when brightness rises monotonically and no counteracting decrease occurs.
+
+---
+
+## Key takeaways
+
+- Event cameras measure **changes in logarithmic brightness**, not raw intensity frames.
+- The ideal trigger rule is based on threshold crossings of
+  $$
+  \Delta L = L - L_{\mathrm{ref}}.
+  $$
+- The event tuple is
+  $$
+  (x, y, t, p).
+  $$
+- Events can later be converted into event images, voxel grids, or time surfaces.
+
+---
+
+## Continue learning
+
+- [How Event Cameras Work](./how-event-cameras-work)
+- [Inside an Event Camera Pixel](./analog-pixel-model)
+- [Types of Event Cameras](./types-of-event-cameras)
+- [Understanding Event Data](../data-processing/event-data)

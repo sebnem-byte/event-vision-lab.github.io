@@ -1,63 +1,133 @@
 ---
 title: How Event Cameras Work
-description: Learn the basic operating principles of event cameras through an interactive simulation.
+description: Visual overview of event generation, pixel electronics, DAVIS sensing, temporal resolution, and common event representations.
 ---
-import InteractiveEventExplainer from '../../../components/InteractiveEventExplainer';
 
-A conventional camera integrates light and outputs frames at a fixed rate. An **event camera** instead reports changes in brightness independently at each pixel. An ideal event consists of its pixel coordinates, a timestamp, and the sign of the brightness change:
+# How Event Cameras Work
 
-$$e_k=(x_k,y_k,t_k,p_k), \qquad p_k\in\{-1,+1\}.$$
+Event cameras, also called **dynamic vision sensors** or **neuromorphic vision sensors**, do not capture conventional image frames at a fixed rate. Instead, they output asynchronous **ON/OFF events** whenever the brightness at a pixel changes by more than a threshold.
 
-The resulting stream is **asynchronous**: no event is required when a pixel's brightness remains sufficiently stable.
+This page provides a visual overview that connects intuition, hardware, mathematics, and data representations.
 
-## 1. Brightness changes, not brightness values
+## Full overview figure
 
-Let $I(x,y,t)$ denote brightness at pixel $(x,y)$ and time $t$. Event-camera models typically operate on *logarithmic brightness*:
+![How Event Cameras Work](/figures/how-event-cameras-work-infographic.png)
 
-$$L(x,y,t)=\log I(x,y,t).$$
+---
 
-For a fixed pixel, when the difference in log brightness since a reference value reaches a contrast threshold $C$, that pixel generates a positive (ON) or negative (OFF) event.
+## 1. What is an event camera?
 
-## 2. Interact with a simulated event pixel
+A conventional frame camera samples **all pixels** at fixed time intervals. An event camera instead outputs only the pixels that experience a sufficient change in brightness.
 
-Play a moving bright object, click a pixel in the conventional grayscale frame, and inspect its logarithmic intensity history. Change the contrast threshold and time window, then compare the **event image**, **5-bin voxel representation**, and **time surface** computed from the same events.
+This means:
 
-<InteractiveEventExplainer client:load />
+- no global frame clock is required for event output,
+- pixels respond independently,
+- only changes are transmitted,
+- rapid motion can be captured with much less motion blur.
 
-The graph tracks the selected pixel over the full simulation. Blue markers correspond to **ON** events; orange markers correspond to **OFF** events. Move the time slider to compare the conventional frame with the event stream accumulated over the selected window. This example is simulated, not a recorded sensor output.
+---
 
-### Try these questions
+## 2. Brightness changes, not brightness values
 
-- At a fixed brightness trajectory, what happens when $C$ increases?
-- If the brightness stops changing, how many events should an ideal pixel emit?
-- How does faster brightness variation change the distribution of event timestamps?
-- Why can an event camera produce many events for a fast edge and almost none from a static, textured scene?
+The key idea is that event cameras react to **changes in log-brightness**:
 
-## 3. Event trigger equation
+$$
+L(\mathbf{x}, t) = \log I(\mathbf{x}, t).
+$$
 
-For a single pixel, an event of polarity $p_k$ is generated when the change in log brightness reaches a polarity-dependent threshold:
+Events are triggered when the change from a stored reference exceeds a threshold:
 
-$$L(x,y,t_k)-L_{\mathrm{ref}}(x,y)\approx p_k C,\qquad p_k\in\{+1,-1\}.$$
+$$
+\Delta L(\mathbf{x}, t) = L(\mathbf{x}, t) - L_{\mathrm{ref}}(\mathbf{x}).
+$$
 
-In the idealized simulator, the reference is updated in steps of $p_k C$ after each event, so a sufficiently large change can result in multiple events. Practical cameras have threshold variability, noise, latency, bandwidth and refractory-period effects.
+So the sensor is not reporting static intensity values continuously. It reports only significant temporal contrast.
 
-## 4. What is special about event cameras?
+---
 
-- **Asynchronous measurements:** individual pixels report independently.
-- **Low latency:** events can be timestamped at fine temporal resolution.
-- **High dynamic range:** event-camera pixels can work in challenging lighting conditions, subject to the particular sensor.
-- **Sparse output:** event generation depends on scene and camera motion, texture and illumination changes.
+## 3. From light to asynchronous events
 
-These are *sensor characteristics*, not guarantees of superior performance for every scene.
+A conceptual single-pixel pipeline is:
 
-## Reading
+1. **Photoreceptor** receives light and produces an analog electrical response.
+2. **Log front-end** converts brightness to a log-domain signal.
+3. **Change detector** compares the current signal to a stored reference.
+4. **ON/OFF comparators** detect threshold crossings.
+5. **Reference update / reset** prepares the pixel for future events.
+6. **AER event output** reports $(x, y, t, p)$ asynchronously.
 
-**Primary reference:** Gallego et al., [*Event-Based Vision: A Survey*](https://doi.org/10.1109/TPAMI.2020.3008413), IEEE TPAMI, 2022. Start with the section on event-based cameras and the event generation model.
+This flow is illustrated in the central part of the figure.
 
-**Next:** [Mathematical Model](../mathematical-model/)
+---
 
+## 4. High temporal resolution
+
+One major advantage of event cameras is **high temporal resolution**. This does not mean that they produce extremely high-FPS image frames. Rather, it means that they can timestamp visual changes with very fine temporal precision.
+
+In practice, this provides:
+
+- microsecond-scale timing information,
+- low-latency responses to motion,
+- reduced motion blur,
+- more precise timing for fast visual dynamics.
+
+---
+
+## 5. Understanding the DAVIS camera
+
+The figure also includes the **DAVIS** architecture, which combines:
+
+- a **DVS** path for event-based sensing,
+- an **APS** path for conventional image frames.
+
+The same sensor can therefore provide both:
+
+- grayscale image frames,
+- asynchronous ON/OFF event streams.
+
+This is useful when we want both conventional image information and event-based timing.
+
+---
+
+## 6. Event representations
+
+Raw events are useful, but many algorithms convert them into more structured representations:
+
+- **Event image** – accumulates events in the image plane,
+- **Voxel grid** – discretizes events across space and time,
+- **Time surface** – stores recency of the latest event.
+
+These representations are important for visualization, tracking, feature extraction, and learning-based pipelines.
+
+---
+
+## 7. Types of event cameras
+
+The final panel includes a small comparison table with representative sensors in the literature:
+
+- **DVS128** – early event-only sensor,
+- **ATIS** – event-based architecture with intensity-related output,
+- **DAVIS240 / DAVIS346** – event + frame sensor family,
+- **Prophesee Gen4** – modern high-resolution event camera.
+
+These differ in resolution, output type, latency characteristics, and integration strategy.
+
+---
+
+## 8. Key takeaways
+
+- Event cameras output asynchronous ON/OFF events.
+- They respond to changes in logarithmic brightness.
+- They offer high temporal resolution and low-latency sensing.
+- DAVIS combines event sensing with frame-based APS output.
+- Event data is often converted into event images, voxel grids, or time surfaces.
+
+---
 
 ## Continue learning
 
-- [Understand the analog hardware](../analog-pixel-model/)
-- [Compare camera architectures in the literature](../types-of-event-cameras/)
+- [Mathematical Model](./mathematical-model)
+- [Inside an Event Camera Pixel](./analog-pixel-model)
+- [Types of Event Cameras](./types-of-event-cameras)
+- [Understanding Event Data](../data-processing/event-data)
